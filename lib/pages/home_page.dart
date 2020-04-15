@@ -1,4 +1,5 @@
 import 'package:f_202010_todo_class/model/todo.dart';
+import 'package:f_202010_todo_class/pages/dialogo.dart';
 import 'package:flutter/material.dart';
 
 class HomePageTodo extends StatefulWidget {
@@ -32,12 +33,56 @@ class _HomePageTodoState extends State<HomePageTodo> {
   }
 
   Widget _item(Todo element, int posicion){
-    return Text('$posicion');
+    // return Text('$posicion');
+    return Center(
+      child: Dismissible(
+        key: UniqueKey(),
+        child: Card(
+          color: element.completed == 1 ? Colors.blueGrey : Colors.yellow[200],
+          child: ListTile(
+            onTap: (){_toque(context, posicion);},
+            title: Text(
+              element.title.toString()
+            ),
+            subtitle: Text(
+              element.body.toString()
+            ),
+          ),
+        ),
+        onDismissed: (direction) {
+          setState(() {
+            todos.removeAt(posicion);
+          });
+
+          Scaffold.of(context).showSnackBar(SnackBar(content: Text("$posicion dismissed")));
+        },
+        background: Container(color: Colors.red),
+      ),
+    );
   }
 
-  void _addTodo(){
+   _addTodo() async {
+    final todo = await showDialog<Todo>(
+      context: context,
+      builder: (BuildContext context) {
+        return NewTodoDialog();
+      },
+    );
+
+    if (todo != null) {
+      setState(() {
+        this.todos.add(todo);
+      });
+    }
+  }
+
+
+  void _toque(BuildContext context, int posicion) {
     setState(() {
-      todos.add(new Todo(title:"itemT", body: "itemB", completed: 0 ));
+      if (this.todos[posicion].completed == 0) {
+        this.todos[posicion].completed = 1;
+      }
     });
   }
+
 }
